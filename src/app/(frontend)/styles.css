@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Modak&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jersey+25&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -114,7 +117,16 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+body {
+  font-family: 'Jersey 25', sans-serif;
+}
+
+.game-title {
+  font-family: 'Jersey 25', cursive;
 }
