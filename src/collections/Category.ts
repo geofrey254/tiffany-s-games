@@ -33,5 +33,23 @@ export const Categories: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
     },
+    {
+      name: 'popularity',
+      type: 'checkbox',
+      label: 'Popular Category',
+      admin: {
+        description:
+          'Check this box if this category is popular and should be highlighted in the UI.',
+      },
+    },
+    {
+      name: 'trending',
+      type: 'checkbox',
+      label: 'Trending Category',
+      admin: {
+        description:
+          'Check this box if this category is currently trending and should be highlighted in the UI.',
+      },
+    },
   ],
 }
