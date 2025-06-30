@@ -216,9 +216,8 @@ export interface Media {
  */
 export interface Authentication {
   id: string;
-  firstName: string;
-  lastName: string;
-  password: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   /**
    * Upload a profile picture for your account.
    */
@@ -251,6 +250,7 @@ export interface Authentication {
         expiresAt: string;
       }[]
     | null;
+  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -520,7 +520,6 @@ export interface MediaSelect<T extends boolean = true> {
 export interface AuthenticationSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
-  password?: T;
   profilePicture?: T;
   stats?:
     | T

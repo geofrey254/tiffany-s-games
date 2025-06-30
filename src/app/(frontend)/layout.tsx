@@ -2,6 +2,7 @@ import React from 'react'
 import './styles.css'
 import Navbar from '@/components/navigation/Navbar'
 import Footer from '@/components/navigation/Footer'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata = {
   title: 'Tiffany’s Games | Play. Guess. Win.',
@@ -15,11 +16,13 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <main>
-          <Navbar />
-          {children}
-          <Footer />
-        </main>
+        <AuthProvider>
+          <main>
+            <Navbar />
+            {children}
+            <Footer />
+          </main>
+        </AuthProvider>
       </body>
     </html>
   )

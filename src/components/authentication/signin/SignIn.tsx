@@ -19,15 +19,16 @@ import {
   Trophy,
 } from 'lucide-react'
 import Image from 'next/image'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function SignIn() {
+  const { setUser } = useAuth()
   const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
   const [isLoading, setIsLoading] = useState(false)
 
@@ -78,6 +79,8 @@ export default function SignIn() {
       })
 
       if (res.ok) {
+        const data = await res.json()
+        setUser(data.user) // Assuming setUser updates the user context
         router.push('/')
       } else {
         const data = await res.json()

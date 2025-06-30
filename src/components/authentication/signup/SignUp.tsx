@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   User,
@@ -20,6 +21,7 @@ import {
 import Image from 'next/image'
 
 export default function SignUp() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -29,9 +31,9 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -47,7 +49,7 @@ export default function SignUp() {
   }
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors: { [key: string]: string } = {}
 
     if (!formData.username.trim()) {
       newErrors.username = 'Username is required'
@@ -79,11 +81,27 @@ export default function SignUp() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault()
     if (validateForm()) {
-      // Handle form submission
-      console.log('Form submitted:', formData)
+      const res = await fetch('/api/authentication/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+        credentials: 'include',
+      })
+
+      if (res.ok) {
+        router.push('/')
+      } else {
+        const data = await res.json()
+        setErrors({ general: data?.message || 'Signup failed' })
+        console.error('Signup error:', data)
+      }
     }
   }
 
@@ -343,7 +361,7 @@ export default function SignUp() {
                 {/* Submit Button */}
                 <button
                   onClick={handleSubmit}
-                  className="w-full bg-gradient-to-r from-[#ffa430] to-[#ff651b] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-[#ff651b]/30 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-[#ffa430] to-[#ff651b] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-[#ff651b]/30 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Create Account
                   <ArrowRight className="w-5 h-5" />

@@ -34,12 +34,10 @@ export const Authentication: CollectionConfig = {
         {
           name: 'firstName',
           type: 'text',
-          required: true,
         },
         {
           name: 'lastName',
           type: 'text',
-          required: true,
         },
       ],
     },
@@ -61,14 +59,7 @@ export const Authentication: CollectionConfig = {
         description: 'This will be your public display name.',
       },
     },
-    {
-      name: 'password',
-      type: 'text',
-      required: true,
-      admin: {
-        description: 'Minimum 8 characters, must include letters and numbers.',
-      },
-    },
+
     {
       name: 'profilePicture',
       type: 'upload',
