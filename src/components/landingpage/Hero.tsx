@@ -125,7 +125,7 @@ export default function TiffanysGamesHero() {
   }, [api])
 
   return (
-    <section className="relative w-full h-[50vh] md:h-[80vh] overflow-hidden group">
+    <section className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden group">
       {/* Carousel Container */}
       <div className="relative w-full h-full">
         <Carousel
@@ -140,7 +140,7 @@ export default function TiffanysGamesHero() {
             {gameCategories.map((category) => (
               <CarouselItem key={category.id} className="pl-4">
                 <div
-                  className="relative w-full h-[50vh] md:h-[80vh] bg-cover bg-center transition-transform duration-300"
+                  className="relative w-full h-[70vh] md:h-[80vh] bg-cover bg-center transition-transform duration-300"
                   style={{ backgroundImage: `url(${category.bgImage})` }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-t md:bg-linear-to-r from-black via-black/90 to-black/50 md:to-transparent flex md:flex-col justify-center md:px-24">

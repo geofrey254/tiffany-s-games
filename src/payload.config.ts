@@ -9,6 +9,7 @@ import { s3Storage } from '@payloadcms/storage-s3'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Authentication } from './collections/Authentication'
 import { Rooms } from './collections/Rooms'
 import { RoomPlayers } from './collections/RoomPlayers'
 import { Categories } from './collections/Category'
@@ -30,6 +31,7 @@ export default buildConfig({
   collections: [
     Users,
     Media,
+    Authentication,
     Rooms,
     RoomPlayers,
     Categories,
@@ -39,6 +41,8 @@ export default buildConfig({
     Leaderboard,
   ],
   editor: lexicalEditor(),
+  cors: ['http://localhost:3000', 'https://tiffanysgames.com', 'https://www.tiffanysgames.com'],
+  csrf: ['http://localhost:3000', 'https://tiffanysgames.com', 'https://www.tiffanysgames.com'],
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

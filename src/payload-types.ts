@@ -64,11 +64,13 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    authentication: AuthenticationAuthOperations;
   };
   blocks: {};
   collections: {
     users: User;
     media: Media;
+    authentication: Authentication;
     rooms: Room;
     room_players: RoomPlayer;
     categories: Category;
@@ -84,6 +86,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    authentication: AuthenticationSelect<false> | AuthenticationSelect<true>;
     rooms: RoomsSelect<false> | RoomsSelect<true>;
     room_players: RoomPlayersSelect<false> | RoomPlayersSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -101,9 +104,13 @@ export interface Config {
   globals: {};
   globalsSelect: {};
   locale: null;
-  user: User & {
-    collection: 'users';
-  };
+  user:
+    | (User & {
+        collection: 'users';
+      })
+    | (Authentication & {
+        collection: 'authentication';
+      });
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -127,17 +134,42 @@ export interface UserAuthOperations {
     password: string;
   };
 }
+export interface AuthenticationAuthOperations {
+  forgotPassword:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
+  login:
+    | {
+        email: string;
+        password: string;
+      }
+    | {
+        password: string;
+        username: string;
+      };
+  registerFirstUser: {
+    password: string;
+    username: string;
+    email: string;
+  };
+  unlock:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
+}
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: string;
-  stats?: {
-    totalGames?: number | null;
-    totalWins?: number | null;
-    points?: number | null;
-  };
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -177,13 +209,57 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Manage user authentication settings and accounts.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authentication".
+ */
+export interface Authentication {
+  id: string;
+  firstName: string;
+  lastName: string;
+  password: string | null;
+  /**
+   * Upload a profile picture for your account.
+   */
+  profilePicture?: (string | null) | Media;
+  stats?: {
+    totalGames?: number | null;
+    totalWins?: number | null;
+    points?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  /**
+   * This will be used for login and notifications.
+   */
+  email: string;
+  /**
+   * This will be your public display name.
+   */
+  username: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "rooms".
  */
 export interface Room {
   id: string;
   roomCode: string;
-  host?: (string | null) | User;
+  host?: (string | null) | Authentication;
   status?: ('waiting' | 'in_progress' | 'completed') | null;
   mode: 'elimination' | 'points';
   maxPlayers?: number | null;
@@ -198,7 +274,7 @@ export interface Room {
  */
 export interface RoomPlayer {
   id: string;
-  user?: (string | null) | User;
+  user?: (string | null) | Authentication;
   room?: (string | null) | Room;
   isEliminated?: boolean | null;
   isFinalist?: boolean | null;
@@ -218,6 +294,14 @@ export interface Category {
   mode: 'image' | 'text' | 'mixed';
   description?: string | null;
   icon?: (string | null) | Media;
+  /**
+   * Check this box if this category is popular and should be highlighted in the UI.
+   */
+  popularity?: boolean | null;
+  /**
+   * Check this box if this category is currently trending and should be highlighted in the UI.
+   */
+  trending?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -281,7 +365,7 @@ export interface PlayerAnswer {
  */
 export interface Leaderboard {
   id: string;
-  user?: (string | null) | User;
+  user?: (string | null) | Authentication;
   points?: number | null;
   gamesPlayed?: number | null;
   rank?: number | null;
@@ -303,6 +387,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'authentication';
+        value: string | Authentication;
       } | null)
     | ({
         relationTo: 'rooms';
@@ -333,10 +421,15 @@ export interface PayloadLockedDocument {
         value: string | Leaderboard;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'authentication';
+        value: string | Authentication;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -346,10 +439,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'authentication';
+        value: string | Authentication;
+      };
   key?: string | null;
   value?:
     | {
@@ -379,13 +477,6 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  stats?:
-    | T
-    | {
-        totalGames?: T;
-        totalWins?: T;
-        points?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -421,6 +512,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authentication_select".
+ */
+export interface AuthenticationSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  password?: T;
+  profilePicture?: T;
+  stats?:
+    | T
+    | {
+        totalGames?: T;
+        totalWins?: T;
+        points?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  username?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -461,6 +586,8 @@ export interface CategoriesSelect<T extends boolean = true> {
   mode?: T;
   description?: T;
   icon?: T;
+  popularity?: T;
+  trending?: T;
   updatedAt?: T;
   createdAt?: T;
 }

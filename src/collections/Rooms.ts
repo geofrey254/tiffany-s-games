@@ -4,7 +4,7 @@ export const Rooms: CollectionConfig = {
   slug: 'rooms',
   fields: [
     { name: 'roomCode', type: 'text', required: true, unique: true },
-    { name: 'host', type: 'relationship', relationTo: 'users' },
+    { name: 'host', type: 'relationship', relationTo: 'authentication' },
     {
       name: 'status',
       type: 'select',

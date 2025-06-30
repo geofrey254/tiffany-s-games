@@ -63,7 +63,7 @@ export default function PrivateRoomsSection() {
         </div>
 
         <div className="flex justify-center items-center">
-          <div className="space-y-8 w-[70vw]">
+          <div className="space-y-8 md:w-[70vw]">
             {/* Tab Navigation */}
             <div className="flex bg-gray-800/50 backdrop-blur-sm rounded-2xl p-2 border border-gray-700">
               <button
@@ -311,7 +311,7 @@ export default function PrivateRoomsSection() {
 
             {/* Join Room Content */}
             {activeTab === 'join' && (
-              <div className="space-y-6 animate-fadeIn">
+              <div className="space-y-6  animate-fadeIn">
                 <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
                   <h3 className="text-2xl font-bold text-white mb-6 game-title flex items-center gap-2">
                     <UserCheck className="w-6 h-6 text-[#ff651b]" />
