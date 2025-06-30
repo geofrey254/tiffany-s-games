@@ -69,6 +69,13 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    rooms: Room;
+    room_players: RoomPlayer;
+    categories: Category;
+    questions: Question;
+    game_rounds: GameRound;
+    player_answers: PlayerAnswer;
+    leaderboard: Leaderboard;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -77,6 +84,13 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    rooms: RoomsSelect<false> | RoomsSelect<true>;
+    room_players: RoomPlayersSelect<false> | RoomPlayersSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    questions: QuestionsSelect<false> | QuestionsSelect<true>;
+    game_rounds: GameRoundsSelect<false> | GameRoundsSelect<true>;
+    player_answers: PlayerAnswersSelect<false> | PlayerAnswersSelect<true>;
+    leaderboard: LeaderboardSelect<false> | LeaderboardSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -119,6 +133,11 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  stats?: {
+    totalGames?: number | null;
+    totalWins?: number | null;
+    points?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -159,6 +178,119 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rooms".
+ */
+export interface Room {
+  id: string;
+  roomCode: string;
+  host?: (string | null) | User;
+  status?: ('waiting' | 'in_progress' | 'completed') | null;
+  mode: 'elimination' | 'points';
+  maxPlayers?: number | null;
+  players?: (string | RoomPlayer)[] | null;
+  currentRound?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "room_players".
+ */
+export interface RoomPlayer {
+  id: string;
+  user?: (string | null) | User;
+  room?: (string | null) | Room;
+  isEliminated?: boolean | null;
+  isFinalist?: boolean | null;
+  score?: number | null;
+  joinedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  title: string;
+  slug: string;
+  mode: 'image' | 'text' | 'mixed';
+  description?: string | null;
+  icon?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "questions".
+ */
+export interface Question {
+  id: string;
+  type: 'image' | 'text-only';
+  prompt: string;
+  image?: (string | null) | Media;
+  questionType: 'multiple-choice' | 'open-ended';
+  options?:
+    | {
+        label: string;
+        isCorrect?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  correctAnswer?: string | null;
+  category?: (string | null) | Category;
+  difficulty?: ('easy' | 'medium' | 'hard') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "game_rounds".
+ */
+export interface GameRound {
+  id: string;
+  room?: (string | null) | Room;
+  question?: (string | null) | Question;
+  roundNumber?: number | null;
+  category?: (string | null) | Category;
+  playersAnswered?: (string | PlayerAnswer)[] | null;
+  status?: ('pending' | 'completed') | null;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "player_answers".
+ */
+export interface PlayerAnswer {
+  id: string;
+  round?: (string | null) | GameRound;
+  player?: (string | null) | RoomPlayer;
+  answer?: string | null;
+  isCorrect?: boolean | null;
+  timeTaken?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leaderboard".
+ */
+export interface Leaderboard {
+  id: string;
+  user?: (string | null) | User;
+  points?: number | null;
+  gamesPlayed?: number | null;
+  rank?: number | null;
+  timeRange?: ('weekly' | 'all_time') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -171,6 +303,34 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'rooms';
+        value: string | Room;
+      } | null)
+    | ({
+        relationTo: 'room_players';
+        value: string | RoomPlayer;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'questions';
+        value: string | Question;
+      } | null)
+    | ({
+        relationTo: 'game_rounds';
+        value: string | GameRound;
+      } | null)
+    | ({
+        relationTo: 'player_answers';
+        value: string | PlayerAnswer;
+      } | null)
+    | ({
+        relationTo: 'leaderboard';
+        value: string | Leaderboard;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -219,6 +379,13 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  stats?:
+    | T
+    | {
+        totalGames?: T;
+        totalWins?: T;
+        points?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -254,6 +421,112 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rooms_select".
+ */
+export interface RoomsSelect<T extends boolean = true> {
+  roomCode?: T;
+  host?: T;
+  status?: T;
+  mode?: T;
+  maxPlayers?: T;
+  players?: T;
+  currentRound?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "room_players_select".
+ */
+export interface RoomPlayersSelect<T extends boolean = true> {
+  user?: T;
+  room?: T;
+  isEliminated?: T;
+  isFinalist?: T;
+  score?: T;
+  joinedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  mode?: T;
+  description?: T;
+  icon?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "questions_select".
+ */
+export interface QuestionsSelect<T extends boolean = true> {
+  type?: T;
+  prompt?: T;
+  image?: T;
+  questionType?: T;
+  options?:
+    | T
+    | {
+        label?: T;
+        isCorrect?: T;
+        id?: T;
+      };
+  correctAnswer?: T;
+  category?: T;
+  difficulty?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "game_rounds_select".
+ */
+export interface GameRoundsSelect<T extends boolean = true> {
+  room?: T;
+  question?: T;
+  roundNumber?: T;
+  category?: T;
+  playersAnswered?: T;
+  status?: T;
+  startedAt?: T;
+  endedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "player_answers_select".
+ */
+export interface PlayerAnswersSelect<T extends boolean = true> {
+  round?: T;
+  player?: T;
+  answer?: T;
+  isCorrect?: T;
+  timeTaken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leaderboard_select".
+ */
+export interface LeaderboardSelect<T extends boolean = true> {
+  user?: T;
+  points?: T;
+  gamesPlayed?: T;
+  rank?: T;
+  timeRange?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
