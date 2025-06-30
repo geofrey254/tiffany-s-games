@@ -1,6 +1,5 @@
 // storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -10,6 +9,13 @@ import { s3Storage } from '@payloadcms/storage-s3'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Rooms } from './collections/Rooms'
+import { RoomPlayers } from './collections/RoomPlayers'
+import { Categories } from './collections/Category'
+import { Questions } from './collections/Questions'
+import { GameRounds } from './collections/GameRounds'
+import { PlayerAnswers } from './collections/PlayerAnswers'
+import { Leaderboard } from './collections/LeaderBoard'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -21,7 +27,17 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [
+    Users,
+    Media,
+    Rooms,
+    RoomPlayers,
+    Categories,
+    Questions,
+    GameRounds,
+    PlayerAnswers,
+    Leaderboard,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
