@@ -18,6 +18,7 @@ import {
   ArrowRight,
   AlertCircle,
 } from 'lucide-react'
+import { FcGoogle } from 'react-icons/fc'
 import Image from 'next/image'
 
 export default function SignUp() {
@@ -105,12 +106,7 @@ export default function SignUp() {
     }
   }
 
-  const socialLogins = [
-    { name: 'Google', icon: Chrome, color: 'bg-red-600 hover:bg-red-700' },
-    { name: 'GitHub', icon: Github, color: 'bg-gray-800 hover:bg-gray-900' },
-    { name: 'Facebook', icon: Facebook, color: 'bg-blue-600 hover:bg-blue-700' },
-    { name: 'Twitter', icon: Twitter, color: 'bg-sky-500 hover:bg-sky-600' },
-  ]
+  const socialLogins = [{ name: 'Google', icon: FcGoogle, color: 'bg-white hover:bg-black' }]
 
   const features = [
     { icon: Crown, title: 'Exclusive Access', desc: 'Join private gaming rooms' },
@@ -189,22 +185,11 @@ export default function SignUp() {
               {/* Social Login */}
               <div className="space-y-3 mb-6">
                 <div className="text-center text-gray-400 text-sm mb-4">Sign up with</div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   {socialLogins.slice(0, 2).map((social) => (
                     <button
                       key={social.name}
-                      className={`${social.color} text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105`}
-                    >
-                      <social.icon className="w-5 h-5" />
-                      {social.name}
-                    </button>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {socialLogins.slice(2).map((social) => (
-                    <button
-                      key={social.name}
-                      className={`${social.color} text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105`}
+                      className={`${social.color} text-black hover:text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer`}
                     >
                       <social.icon className="w-5 h-5" />
                       {social.name}

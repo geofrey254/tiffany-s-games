@@ -1,10 +1,13 @@
 'use client'
+
 import { createContext, useContext, useState, useEffect } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 
 type User = {
   id: string
   username?: string
   email?: string
+  provider?: string // add if you want to track login method
 }
 
 type AuthContextType = {
@@ -17,43 +20,48 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { data: session, status } = useSession()
+
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (status === 'loading') return
+      if (status === 'unauthenticated') {
+        setUser(null)
+        setIsLoading(false)
+        return
+      }
+
       try {
         const res = await fetch('/api/me')
         if (res.ok) {
           const userData = await res.json()
-          setUser(userData.user)
+          setUser({
+            ...userData.user,
+          })
         } else {
           console.error('Failed to fetch user data')
+          setUser(null)
         }
       } catch (error) {
         console.error('Error fetching user data:', error)
+        setUser(null)
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchUser()
-  }, [])
+  }, [session, status])
 
-  //   logout
   const logout = async () => {
     try {
-      const res = await fetch('/api/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
-      if (res.ok) {
-        setUser(null)
-      } else {
-        console.error('Failed to log out')
-      }
+      await signOut({ callbackUrl: '/' })
+      setUser(null)
     } catch (error) {
-      console.error('Error logging out:', error)
+      console.error('Error during logout:', error)
     }
   }
 

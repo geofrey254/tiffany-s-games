@@ -3,6 +3,7 @@ import { CollectionConfig } from 'payload'
 export const Authentication: CollectionConfig = {
   slug: 'authentication',
   auth: {
+    disableLocalStrategy: true,
     tokenExpiration: 60 * 60 * 24, // 24 hours
     verify: false,
     cookies: {

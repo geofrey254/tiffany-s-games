@@ -219,6 +219,14 @@ export interface Authentication {
   firstName?: string | null;
   lastName?: string | null;
   /**
+   * This will be used for login and notifications.
+   */
+  email: string;
+  /**
+   * This will be your public display name.
+   */
+  username: string;
+  /**
    * Upload a profile picture for your account.
    */
   profilePicture?: (string | null) | Media;
@@ -229,28 +237,6 @@ export interface Authentication {
   };
   updatedAt: string;
   createdAt: string;
-  /**
-   * This will be used for login and notifications.
-   */
-  email: string;
-  /**
-   * This will be your public display name.
-   */
-  username: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -520,6 +506,8 @@ export interface MediaSelect<T extends boolean = true> {
 export interface AuthenticationSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
+  email?: T;
+  username?: T;
   profilePicture?: T;
   stats?:
     | T
@@ -530,21 +518,6 @@ export interface AuthenticationSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
-  email?: T;
-  username?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

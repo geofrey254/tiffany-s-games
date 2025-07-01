@@ -1,21 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { NextResponse } from 'next/server'
+import { authOptions } from '../auth/[...nextauth]'
 
-export async function GET(request: NextRequest) {
+export async function GET(req: Request) {
+  const session = await getServerSession(authOptions)
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ user: null }, { status: 401 })
+  }
+
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/authentication/me`, {
-      headers: {
-        Cookie: request.headers.get('cookie') || '',
+    const payloadRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/authentication?where[email][equals]=${session.user.email}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYLOAD_SECRET}`,
+        },
       },
-    })
+    )
 
-    if (!res.ok) {
-      return NextResponse.json({ error: 'Failed to fetch user data' }, { status: res.status })
-    }
+    const data = await payloadRes.json()
+    const user = data?.docs?.[0] || null
 
-    const userData = await res.json()
-    return NextResponse.json(userData)
+    return NextResponse.json({ user })
   } catch (error) {
-    console.error('Error fetching user data:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error fetching user from Payload:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

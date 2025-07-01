@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import {
   Mail,
@@ -18,6 +19,7 @@ import {
   Users,
   Trophy,
 } from 'lucide-react'
+import { FcGoogle } from 'react-icons/fc'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -89,12 +91,7 @@ export default function SignIn() {
     }
   }
 
-  const socialLogins = [
-    { name: 'Google', icon: Chrome, color: 'bg-red-600 hover:bg-red-700' },
-    { name: 'GitHub', icon: Github, color: 'bg-gray-800 hover:bg-gray-900' },
-    { name: 'Facebook', icon: Facebook, color: 'bg-blue-600 hover:bg-blue-700' },
-    { name: 'Twitter', icon: Twitter, color: 'bg-sky-500 hover:bg-sky-600' },
-  ]
+  const socialLogins = [{ name: 'Google', icon: FcGoogle, color: 'bg-white hover:bg-black' }]
 
   const features = [
     { icon: Trophy, title: 'Compete & Win', desc: 'Join tournaments and climb leaderboards' },
@@ -181,24 +178,23 @@ export default function SignIn() {
               {/* Social Login */}
               <div className="space-y-3 mb-6">
                 <div className="text-center text-gray-400 text-sm mb-4">Quick sign in with</div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   {socialLogins.slice(0, 2).map((social) => (
                     <button
                       key={social.name}
-                      className={`${social.color} text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 disabled:opacity-50`}
+                      className={`${social.color} text-black hover:text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 disabled:opacity-50 cursor-pointer hover:border hover:border-[#ff651b]`}
                       disabled={isLoading}
-                    >
-                      <social.icon className="w-5 h-5" />
-                      {social.name}
-                    </button>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {socialLogins.slice(2).map((social) => (
-                    <button
-                      key={social.name}
-                      className={`${social.color} text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 disabled:opacity-50`}
-                      disabled={isLoading}
+                      onClick={() => {
+                        setIsLoading(true)
+                        signIn(social.name.toLowerCase(), { callbackUrl: '/' })
+                          .then(() => {
+                            setIsLoading(false)
+                          })
+                          .catch((error) => {
+                            setErrors({ email: error.message })
+                            setIsLoading(false)
+                          })
+                      }}
                     >
                       <social.icon className="w-5 h-5" />
                       {social.name}
