@@ -13,6 +13,7 @@ import { Authentication } from './collections/Authentication'
 import { Rooms } from './collections/Rooms'
 import { RoomPlayers } from './collections/RoomPlayers'
 import { Categories } from './collections/Category'
+import { Topics } from './collections/Topics'
 import { Questions } from './collections/Questions'
 import { GameRounds } from './collections/GameRounds'
 import { PlayerAnswers } from './collections/PlayerAnswers'
@@ -35,6 +36,7 @@ export default buildConfig({
     Rooms,
     RoomPlayers,
     Categories,
+    Topics,
     Questions,
     GameRounds,
     PlayerAnswers,

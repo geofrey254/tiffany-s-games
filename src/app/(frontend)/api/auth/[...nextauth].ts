@@ -54,8 +54,6 @@ export const authOptions: NextAuthOptions = {
         const data = await payloadRes.json()
 
         if (!data.docs.length) {
-          // Upload profile picture to Payload (optional but recommended)
-
           // Create user in Payload
           await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/authentication`, {
             method: 'POST',

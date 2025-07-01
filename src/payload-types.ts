@@ -74,6 +74,7 @@ export interface Config {
     rooms: Room;
     room_players: RoomPlayer;
     categories: Category;
+    topics: Topic;
     questions: Question;
     game_rounds: GameRound;
     player_answers: PlayerAnswer;
@@ -90,6 +91,7 @@ export interface Config {
     rooms: RoomsSelect<false> | RoomsSelect<true>;
     room_players: RoomPlayersSelect<false> | RoomPlayersSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    topics: TopicsSelect<false> | TopicsSelect<true>;
     questions: QuestionsSelect<false> | QuestionsSelect<true>;
     game_rounds: GameRoundsSelect<false> | GameRoundsSelect<true>;
     player_answers: PlayerAnswersSelect<false> | PlayerAnswersSelect<true>;
@@ -276,8 +278,12 @@ export interface RoomPlayer {
 export interface Category {
   id: string;
   title: string;
+  /**
+   * The slug is automatically generated from the title if left empty.
+   */
   slug: string;
   mode: 'image' | 'text' | 'mixed';
+  subcategories?: (string | Topic)[] | null;
   description?: string | null;
   icon?: (string | null) | Media;
   /**
@@ -288,6 +294,22 @@ export interface Category {
    * Check this box if this category is currently trending and should be highlighted in the UI.
    */
   trending?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topics".
+ */
+export interface Topic {
+  id: string;
+  title: string;
+  /**
+   * The slug is automatically generated from the title if left empty.
+   */
+  slug: string;
+  description?: string | null;
+  image: string | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -311,6 +333,7 @@ export interface Question {
   correctAnswer?: string | null;
   category?: (string | null) | Category;
   difficulty?: ('easy' | 'medium' | 'hard') | null;
+  region?: ('kenya' | 'africa' | 'global') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -389,6 +412,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'topics';
+        value: string | Topic;
       } | null)
     | ({
         relationTo: 'questions';
@@ -556,10 +583,23 @@ export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   mode?: T;
+  subcategories?: T;
   description?: T;
   icon?: T;
   popularity?: T;
   trending?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topics_select".
+ */
+export interface TopicsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  image?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -582,6 +622,7 @@ export interface QuestionsSelect<T extends boolean = true> {
   correctAnswer?: T;
   category?: T;
   difficulty?: T;
+  region?: T;
   updatedAt?: T;
   createdAt?: T;
 }

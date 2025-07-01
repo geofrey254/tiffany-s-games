@@ -2,6 +2,10 @@ import { CollectionConfig } from 'payload'
 
 export const Questions: CollectionConfig = {
   slug: 'questions',
+  admin: {
+    group: 'Content Management',
+  },
+
   fields: [
     {
       name: 'type',
@@ -49,6 +53,16 @@ export const Questions: CollectionConfig = {
       type: 'select',
       options: ['easy', 'medium', 'hard'],
       defaultValue: 'medium',
+    },
+    {
+      name: 'region',
+      type: 'select',
+      options: [
+        { label: 'Kenya', value: 'kenya' },
+        { label: 'Africa', value: 'africa' },
+        { label: 'Global', value: 'global' },
+      ],
+      required: false,
     },
   ],
 }

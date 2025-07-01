@@ -25,7 +25,7 @@ export const Authentication: CollectionConfig = {
     read: () => true,
     create: () => true,
     update: () => true,
-    delete: () => false, // Prevent deletion of user accounts
+    delete: () => true, // Prevent deletion of user accounts
     admin: () => false, // Prevent admin access to this collection
   },
   fields: [
