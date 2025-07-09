@@ -16,10 +16,10 @@ const io = new Server(server, {
   },
 })
 
-io.on('connection', (socket) => {
+io.on('connection', (socket: any) => {
   console.log('User connected:', socket.id)
 
-  socket.on('guess', (data) => {
+  socket.on('guess', (data: any) => {
     console.log('Guess received:', data)
     socket.broadcast.emit('guessMade', data)
   })

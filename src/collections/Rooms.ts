@@ -2,8 +2,16 @@ import { CollectionConfig } from 'payload'
 
 export const Rooms: CollectionConfig = {
   slug: 'rooms',
+  access: {
+    read: () => true,
+    create: () => true,
+    update: () => true,
+    delete: () => true, // Prevent deletion of user accounts
+    admin: () => false, // Prevent admin access to this collection
+  },
   fields: [
     { name: 'roomCode', type: 'text', required: true, unique: true },
+    { name: 'roomName', type: 'text', required: true, unique: true },
     { name: 'host', type: 'relationship', relationTo: 'authentication' },
     {
       name: 'status',

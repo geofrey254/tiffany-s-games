@@ -247,6 +247,7 @@ export interface Authentication {
 export interface Room {
   id: string;
   roomCode: string;
+  roomName: string;
   host?: (string | null) | Authentication;
   status?: ('waiting' | 'in_progress' | 'completed') | null;
   mode: 'elimination' | 'points';
@@ -552,6 +553,7 @@ export interface AuthenticationSelect<T extends boolean = true> {
  */
 export interface RoomsSelect<T extends boolean = true> {
   roomCode?: T;
+  roomName?: T;
   host?: T;
   status?: T;
   mode?: T;

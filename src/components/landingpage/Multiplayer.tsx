@@ -19,22 +19,82 @@ import {
   Clock,
   Gamepad2,
 } from 'lucide-react'
-
-const samplePlayers = [
-  { id: 1, name: 'Alex', avatar: '🎮', score: 1250, isHost: true, status: 'ready' },
-  { id: 2, name: 'Sarah', avatar: '🌟', score: 980, isHost: false, status: 'ready' },
-  { id: 3, name: 'Mike', avatar: '🔥', score: 1100, isHost: false, status: 'waiting' },
-]
+import { generateRoomCode } from '@/lib/generateRoomCode'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 export default function PrivateRoomsSection() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('create')
-  const [roomCode] = useState('ABC123')
+  const [roomCode, setRoomCode] = useState('ABC123')
   const [roomName, setRoomName] = useState('')
+  const [roomCreated, setRoomCreated] = useState(false)
   const [maxPlayers, setMaxPlayers] = useState(6)
   const [timeLimit, setTimeLimit] = useState(30)
   const [joinCode, setJoinCode] = useState('')
   const [isCodeVisible, setIsCodeVisible] = useState(false)
   const [gameMode, setGameMode] = useState('classic')
+  const [isLoading, setIsLoading] = useState(false)
+  const currentUserId = user?.id
+  const router = useRouter()
+
+  const createRoom = async () => {
+    const newRoomCode = generateRoomCode()
+    const payloadUrl = 'http://localhost:3000/api/rooms'
+
+    try {
+      const res = await fetch(payloadUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          roomCode: newRoomCode,
+          roomName: roomName,
+          host: user?.id,
+          status: 'waiting',
+          mode: gameMode === 'elimination' ? 'elimination' : 'points',
+          maxPlayers,
+          players: [user?.id],
+        }),
+      })
+
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch (err) {
+        console.error('Invalid JSON response:', text)
+        throw new Error('Failed to parse JSON')
+      }
+
+      if (res.ok) {
+        setRoomCode(newRoomCode)
+        setRoomCreated(true)
+        setJoinCode(newRoomCode)
+        router.push(`/rooms/${newRoomCode}`)
+      } else {
+        console.error('API Error:', data)
+      }
+
+      console.log('Room created:', data)
+    } catch (err) {
+      console.error('Room creation failed:', err)
+    }
+  }
+
+  const joinRoom = async () => {
+    const res = await fetch(`/api/rooms/${joinCode}`)
+    if (res.ok) {
+      const data = await res.json()
+      // navigate or join logic here
+      router.push(`/rooms/${joinCode}`)
+
+      console.log('Joined room:', data)
+    } else {
+      alert('Invalid room code')
+    }
+  }
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(roomCode)
@@ -68,6 +128,7 @@ export default function PrivateRoomsSection() {
             <div className="flex bg-gray-800/50 backdrop-blur-sm rounded-2xl p-2 border border-gray-700">
               <button
                 onClick={() => setActiveTab('create')}
+                disabled={!roomName.trim()}
                 className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
                   activeTab === 'create'
                     ? 'bg-gradient-to-r from-[#ffa430] to-[#ff651b] text-white shadow-lg'
@@ -226,29 +287,12 @@ export default function PrivateRoomsSection() {
                           </div>
                         </div>
                       </div>
-
-                      {/* Current Players Preview */}
-                      <div className="bg-gray-700/30 rounded-xl p-4 border border-gray-600">
-                        <h4 className="text-white font-bold mb-3 flex items-center gap-2">
-                          <Users className="w-5 h-5 text-[#ff651b]" />
-                          Players in Room
-                        </h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="text-2xl">👑</span>
-                            <span className="text-white font-semibold">You (Host)</span>
-                            <span className="ml-auto text-green-400 text-xs">Ready</span>
-                          </div>
-                          <div className="text-xs text-gray-400 text-center py-2">
-                            Waiting for friends to join...
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
 
                   {/* Create Button */}
                   <button
+                    onClick={createRoom}
                     disabled={!roomName.trim()}
                     className="w-full mt-6 bg-gradient-to-r from-[#ffa430] to-[#ff651b] text-white py-4 rounded-xl font-bold text-lg game-title hover:shadow-lg hover:shadow-[#ff651b]/30 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
@@ -257,55 +301,57 @@ export default function PrivateRoomsSection() {
                 </div>
 
                 {/* Room Created Success State (you can show this conditionally) */}
-                <div className="bg-green-900/20 border border-green-500/30 backdrop-blur-sm rounded-2xl p-6 hidden">
-                  <h3 className="text-2xl font-bold text-green-400 mb-4 game-title flex items-center gap-2">
-                    <Shield className="w-6 h-6" />
-                    Room Created Successfully!
-                  </h3>
+                {roomCreated && (
+                  <div className="bg-green-900/20 border border-green-500/30 backdrop-blur-sm rounded-2xl p-6">
+                    <h3 className="text-2xl font-bold text-green-400 mb-4 game-title flex items-center gap-2">
+                      <Shield className="w-6 h-6" />
+                      Room Created Successfully!
+                    </h3>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Room Code */}
-                    <div className="bg-gray-800/50 rounded-xl p-4">
-                      <label className="block text-gray-300 font-semibold mb-2">Room Code</label>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-700 rounded-lg px-4 py-3 font-mono text-2xl text-center text-[#ff651b] tracking-wider border-2 border-[#ff651b]/30">
-                          {isCodeVisible ? roomCode : '••••••'}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Room Code */}
+                      <div className="bg-gray-800/50 rounded-xl p-4">
+                        <label className="block text-gray-300 font-semibold mb-2">Room Code</label>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-gray-700 rounded-lg px-4 py-3 font-mono text-2xl text-center text-[#ff651b] tracking-wider border-2 border-[#ff651b]/30">
+                            {isCodeVisible ? roomCode : '••••••'}
+                          </div>
+                          <button
+                            onClick={() => setIsCodeVisible(!isCodeVisible)}
+                            className="p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                          >
+                            {isCodeVisible ? (
+                              <EyeOff className="w-5 h-5 text-gray-300" />
+                            ) : (
+                              <Eye className="w-5 h-5 text-gray-300" />
+                            )}
+                          </button>
+                          <button
+                            onClick={handleCopyCode}
+                            className="p-3 bg-[#ff651b] rounded-lg hover:bg-[#ff651b]/80 transition-colors"
+                          >
+                            <Copy className="w-5 h-5 text-white" />
+                          </button>
                         </div>
+                      </div>
+
+                      {/* Share Options */}
+                      <div className="space-y-3">
                         <button
-                          onClick={() => setIsCodeVisible(!isCodeVisible)}
-                          className="p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                          onClick={handleShareRoom}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
                         >
-                          {isCodeVisible ? (
-                            <EyeOff className="w-5 h-5 text-gray-300" />
-                          ) : (
-                            <Eye className="w-5 h-5 text-gray-300" />
-                          )}
+                          <Link className="w-5 h-5" />
+                          Copy Room Link
                         </button>
-                        <button
-                          onClick={handleCopyCode}
-                          className="p-3 bg-[#ff651b] rounded-lg hover:bg-[#ff651b]/80 transition-colors"
-                        >
-                          <Copy className="w-5 h-5 text-white" />
+                        <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors">
+                          <Send className="w-5 h-5" />
+                          Share via Message
                         </button>
                       </div>
                     </div>
-
-                    {/* Share Options */}
-                    <div className="space-y-3">
-                      <button
-                        onClick={handleShareRoom}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
-                      >
-                        <Link className="w-5 h-5" />
-                        Copy Room Link
-                      </button>
-                      <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors">
-                        <Send className="w-5 h-5" />
-                        Share via Message
-                      </button>
-                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -335,6 +381,7 @@ export default function PrivateRoomsSection() {
                         />
                         <button
                           disabled={joinCode.length !== 6}
+                          onClick={joinRoom}
                           className="bg-gradient-to-r from-[#ffa430] to-[#ff651b] text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-[#ff651b]/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Join Room
@@ -368,7 +415,7 @@ export default function PrivateRoomsSection() {
                       <ol className="text-gray-300 text-sm space-y-1">
                         <li>1. Get the room code from your friend</li>
                         <li>2. Enter the 6-character code above</li>
-                        <li>3. Click "Join Room" to enter</li>
+                        <li>3. Click &quot;Join Room&quot; to enter</li>
                         <li>4. Wait for the host to start the game</li>
                       </ol>
                     </div>
