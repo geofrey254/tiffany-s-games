@@ -63,7 +63,7 @@ export default function Navbar() {
     { name: 'Play', href: '/play' },
     { name: 'Categories', href: '/categories' },
     { name: 'Leaderboard', href: '/leaderboard' },
-    { name: 'About', href: '/about' },
+    { name: 'Help', href: '/help' },
   ]
 
   const userMenuItems = [
